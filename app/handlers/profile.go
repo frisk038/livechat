@@ -28,7 +28,7 @@ func (hp *HandlerProfile) PostUsers(c *gin.Context) {
 		return
 	}
 
-	//TODO better fin tuning err
+	//TODO better fine tuning err
 	if err := hp.business.CreateUser(ctx, user); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
