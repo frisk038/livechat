@@ -13,12 +13,9 @@ type Repo struct {
 }
 
 const (
-	insertUser        = `INSERT INTO users(name, password) VALUES ($1, $2);`
+	insertUser        = `INSERT INTO users(id, first_name, last_name) VALUES ($1, $2, $3);`
 	upsertHobby       = `INSERT INTO hobbies(name) VALUES (LOWER($1)) ON CONFLICT DO NOTHING;`
-	insertUserHobbies = `INSERT INTO users_hobbies (user_id, hobby_id) 
-	SELECT (SELECT id FROM users WHERE name=$1), id 
-	FROM hobbies 
-	WHERE name=ANY($2);`
+	insertUserHobbies = `INSERT INTO users_hobbies (user_id, hobby_id) VALUES($1 , (SELECT id FROM hobbies WHERE name=LOWER($2)))`
 )
 
 func NewRepo() (*Repo, error) {
@@ -29,8 +26,8 @@ func NewRepo() (*Repo, error) {
 	return &Repo{conn: conn}, nil
 }
 
-func (r *Repo) InsertUser(ctx context.Context, username, password string) error {
-	_, err := r.conn.Exec(ctx, insertUser, username, password)
+func (r *Repo) InsertUser(ctx context.Context, userID, firstName, lastName string) error {
+	_, err := r.conn.Exec(ctx, insertUser, userID, firstName, lastName)
 	return err
 }
 
@@ -48,7 +45,16 @@ func (r *Repo) InsertHobbies(ctx context.Context, hobbies []string) error {
 	return gp.Wait()
 }
 
-func (r *Repo) InsertUserHobbies(ctx context.Context, username string, hobbies []string) error {
-	_, err := r.conn.Exec(ctx, insertUserHobbies, username, hobbies)
-	return err
+func (r *Repo) InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error {
+	var gp errgroup.Group
+
+	for _, v := range hobbies {
+		hobby := v
+		gp.Go(func() error {
+			_, err := r.conn.Exec(ctx, insertUserHobbies, userID, hobby)
+			return err
+		})
+	}
+
+	return gp.Wait()
 }

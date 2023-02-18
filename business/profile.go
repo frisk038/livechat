@@ -7,9 +7,9 @@ import (
 )
 
 type repo interface {
-	InsertUser(ctx context.Context, username, password string) error
+	InsertUser(ctx context.Context, userID, firstName, lastName string) error
 	InsertHobbies(ctx context.Context, hobbies []string) error
-	InsertUserHobbies(ctx context.Context, username string, hobbies []string) error
+	InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error
 }
 
 type BusinessProfile struct {
@@ -21,7 +21,7 @@ func NewBusinessProfile(repo repo) BusinessProfile {
 }
 
 func (bp *BusinessProfile) CreateUser(ctx context.Context, user models.User) error {
-	err := bp.repo.InsertUser(context.Background(), user.Name, user.Password)
+	err := bp.repo.InsertUser(context.Background(), user.ID, user.FirsttName, user.LastName)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (bp *BusinessProfile) CreateUser(ctx context.Context, user models.User) err
 		return err
 	}
 
-	err = bp.repo.InsertUserHobbies(context.Background(), user.Name, user.Hobbies)
+	err = bp.repo.InsertUserHobbies(context.Background(), user.ID, user.Hobbies)
 	if err != nil {
 		return err
 	}
