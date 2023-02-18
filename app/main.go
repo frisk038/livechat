@@ -14,9 +14,9 @@ import (
 
 func initRoutes(hp handlers.HandlerProfile, hc handlers.HandlerChat) {
 	port := os.Getenv("PORT")
-      if port == "" {
-          log.Fatal("$PORT must be set")
-      }
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
 
 	r := gin.Default()
 	r.POST("/user", hp.PostUsers)
