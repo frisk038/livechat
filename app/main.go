@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/frisk038/livechat/app/handlers"
 	"github.com/frisk038/livechat/app/handlers/connexions"
 	"github.com/frisk038/livechat/business"
@@ -11,10 +13,15 @@ import (
 )
 
 func initRoutes(hp handlers.HandlerProfile, hc handlers.HandlerChat) {
+	port := os.Getenv("PORT")
+      if port == "" {
+          log.Fatal("$PORT must be set")
+      }
+
 	r := gin.Default()
 	r.POST("/user", hp.PostUsers)
 	r.GET("/ws/:user_id", hc.RegisterClientSocket)
-	r.Run(":8090")
+	r.Run(":" + port)
 }
 
 func main() {
