@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/frisk038/livechat/business/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
 )
@@ -45,13 +46,13 @@ func (r *Repo) InsertHobbies(ctx context.Context, hobbies []string) error {
 	return gp.Wait()
 }
 
-func (r *Repo) InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error {
+func (r *Repo) InsertUserHobbies(ctx context.Context, user models.User) error {
 	var gp errgroup.Group
 
-	for _, v := range hobbies {
+	for _, v := range user.Hobbies {
 		hobby := v
 		gp.Go(func() error {
-			_, err := r.conn.Exec(ctx, insertUserHobbies, userID, hobby)
+			_, err := r.conn.Exec(ctx, insertUserHobbies, user.ID, hobby)
 			return err
 		})
 	}
