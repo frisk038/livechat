@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/frisk038/livechat/business/models"
@@ -10,7 +11,7 @@ import (
 
 type business interface {
 	CreateUser(ctx context.Context, user models.User) error
-	SetHobbies(ctx context.Context, user models.User) error
+	SetHobbies(ctx context.Context, user string, hobby string) error
 }
 
 type HandlerProfile struct {
@@ -48,17 +49,18 @@ func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
 	c.Header("Access-Control-Allow-Headers", "Content-Type")
 
 	ctx := c.Request.Context()
-	var user models.User
-	if err := c.BindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	userID := c.Param("id")
+	hobby := c.Param("hobby")
+	if len(userID) == 0 || len(hobby) == 0 {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id and hobby are mandatory"))
 		return
 	}
 
 	//TODO better fine tuning err
-	if err := hp.business.SetHobbies(ctx, user); err != nil {
+	if err := hp.business.SetHobbies(ctx, userID, hobby); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.Status(http.StatusOK)
 }

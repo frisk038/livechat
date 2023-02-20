@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 
-	"github.com/frisk038/livechat/business/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
 )
@@ -17,6 +16,8 @@ const (
 	insertUser        = `INSERT INTO users(id, first_name, last_name) VALUES ($1, $2, $3);`
 	upsertHobby       = `INSERT INTO hobbies(name) VALUES (LOWER($1)) ON CONFLICT DO NOTHING;`
 	insertUserHobbies = `INSERT INTO users_hobbies (user_id, hobby_id) VALUES($1 , (SELECT id FROM hobbies WHERE name=LOWER($2)))`
+	getUserHobbies    = `SELECT name FROM users_hobbies LEFT JOIN hobbies ON hobbies.id=users_hobbies.hobby_id WHERE user_id=$1;`
+	delUserHobbies    = `DELETE FROM users_hobbies where user_id=$1 and hobby_id=$2;`
 )
 
 func NewRepo() (*Repo, error) {
@@ -46,13 +47,13 @@ func (r *Repo) InsertHobbies(ctx context.Context, hobbies []string) error {
 	return gp.Wait()
 }
 
-func (r *Repo) InsertUserHobbies(ctx context.Context, user models.User) error {
+func (r *Repo) InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error {
 	var gp errgroup.Group
 
-	for _, v := range user.Hobbies {
+	for _, v := range hobbies {
 		hobby := v
 		gp.Go(func() error {
-			_, err := r.conn.Exec(ctx, insertUserHobbies, user.ID, hobby)
+			_, err := r.conn.Exec(ctx, insertUserHobbies, userID, hobby)
 			return err
 		})
 	}

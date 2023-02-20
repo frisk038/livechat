@@ -20,7 +20,10 @@ func initRoutes(hp handlers.HandlerProfile, hc handlers.HandlerChat) {
 
 	r := gin.Default()
 	r.POST("/user", hp.PostUsers)
+	r.POST("/user/:id/hobby", hp.PostUsersHobbies)
+
 	r.GET("/ws/:user_id", hc.RegisterClientSocket)
+
 	r.Run(":" + port)
 }
 
