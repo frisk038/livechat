@@ -81,7 +81,7 @@ func (r *Repo) GetUserHobbies(ctx context.Context, userID string) ([]string, err
 	return hobbies, nil
 }
 
-func (r *Repo) DelUserHobbies(ctx context.Context, userID, hobbyID uuid.UUID) error {
+func (r *Repo) DelUserHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error {
 	_, err := r.conn.Exec(ctx, delUserHobbies, userID, hobbyID)
 	return err
 }

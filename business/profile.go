@@ -4,12 +4,15 @@ import (
 	"context"
 
 	"github.com/frisk038/livechat/business/models"
+	"github.com/google/uuid"
 )
 
 type repo interface {
 	InsertUser(ctx context.Context, userID, firstName, lastName string) error
 	InsertHobbies(ctx context.Context, hobbies []string) error
 	InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error
+	GetUserHobbies(ctx context.Context, userID string) ([]string, error)
+	DelUserHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error
 }
 
 type BusinessProfile struct {
@@ -35,4 +38,12 @@ func (bp *BusinessProfile) SetHobbies(ctx context.Context, userID, hobby string)
 	}
 
 	return bp.repo.InsertUserHobbies(ctx, userID, []string{hobby})
+}
+
+func (bp *BusinessProfile) GetHobbies(ctx context.Context, userID string) ([]string, error) {
+	return bp.repo.GetUserHobbies(ctx, userID)
+}
+
+func (bp *BusinessProfile) DelHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error {
+	return bp.repo.DelUserHobbies(ctx, userID, hobbyID)
 }
