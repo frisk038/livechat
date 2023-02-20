@@ -3,5 +3,6 @@
   "editor.formatOnSave": false,
   "[go]": {
     "editor.defaultFormatter": "golang.go"
-  }
+  },
+  "go.inferGopath": false
 }

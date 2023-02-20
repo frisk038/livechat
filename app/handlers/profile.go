@@ -21,7 +21,11 @@ func NewHandlerProfile(b business) HandlerProfile {
 }
 
 func (hp *HandlerProfile) PostUsers(c *gin.Context) {
-	ctx := c.Request.Context()
+    c.Header("Access-Control-Allow-Origin", "*")
+    c.Header("Access-Control-Allow-Methods", "POST")
+    c.Header("Access-Control-Allow-Headers", "Content-Type")
+	
+    ctx := c.Request.Context()
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
