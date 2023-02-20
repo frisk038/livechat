@@ -7,11 +7,14 @@ import (
 
 	"github.com/frisk038/livechat/business/models"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type business interface {
 	CreateUser(ctx context.Context, user models.User) error
 	SetHobbies(ctx context.Context, user string, hobby string) error
+	GetHobbies(ctx context.Context, userID string) ([]string, error)
+	DelHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error
 }
 
 type HandlerProfile struct {
@@ -49,8 +52,8 @@ func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
 	c.Header("Access-Control-Allow-Headers", "Content-Type")
 
 	ctx := c.Request.Context()
-	userID := c.Param("id")
-	hobby := c.Param("hobby")
+	userID := c.Param("user_id")
+	hobby := c.Param("hobby_id")
 	if len(userID) == 0 || len(hobby) == 0 {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id and hobby are mandatory"))
 		return
@@ -58,6 +61,53 @@ func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
 
 	//TODO better fine tuning err
 	if err := hp.business.SetHobbies(ctx, userID, hobby); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func (hp *HandlerProfile) GetUsersHobbies(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+
+	ctx := c.Request.Context()
+	userID := c.Param("user_id")
+	if len(userID) == 0 {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id and hobby are mandatory"))
+		return
+	}
+
+	//TODO better fine tuning err
+	hobbies, err := hp.business.GetHobbies(ctx, userID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"hobbies": hobbies})
+}
+
+func (hp *HandlerProfile) DelUsersHobbies(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "DELETE")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+
+	ctx := c.Request.Context()
+	userID := c.Param("user_id")
+	hobby := c.Param("hobby_id")
+	if len(userID) == 0 || len(hobby) == 0 {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id and hobby are mandatory"))
+		return
+	}
+	hobbyID, err := uuid.Parse(hobby)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id is not an uuid"))
+	}
+
+	//TODO better fine tuning err
+	if err := hp.business.DelHobbies(ctx, userID, hobbyID); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

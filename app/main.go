@@ -19,8 +19,11 @@ func initRoutes(hp handlers.HandlerProfile, hc handlers.HandlerChat) {
 	}
 
 	r := gin.Default()
+
 	r.POST("/user", hp.PostUsers)
-	r.POST("/user/:id/hobby", hp.PostUsersHobbies)
+	r.POST("/user/:user_id/hobby/:hobby_id", hp.PostUsersHobbies)
+	r.GET("/user/:user_id/hobbies", hp.GetUsersHobbies)
+	r.DELETE("/user/:user_id/hobby/:hobby_id", hp.DelUsersHobbies)
 
 	r.GET("/ws/:user_id", hc.RegisterClientSocket)
 
