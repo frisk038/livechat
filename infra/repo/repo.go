@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
 )
@@ -59,4 +60,28 @@ func (r *Repo) InsertUserHobbies(ctx context.Context, userID string, hobbies []s
 	}
 
 	return gp.Wait()
+}
+
+func (r *Repo) GetUserHobbies(ctx context.Context, userID string) ([]string, error) {
+	rows, err := r.conn.Query(ctx, getUserHobbies, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var hobbies []string
+	var hobby string
+	for rows.Next() {
+		err = rows.Scan(&hobby)
+		if err != nil {
+			return nil, err
+		}
+		hobbies = append(hobbies, hobby)
+	}
+	return hobbies, nil
+}
+
+func (r *Repo) DelUserHobbies(ctx context.Context, userID, hobbyID uuid.UUID) error {
+	_, err := r.conn.Exec(ctx, delUserHobbies, userID, hobbyID)
+	return err
 }
