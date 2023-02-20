@@ -53,7 +53,7 @@ func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	userID := c.Param("user_id")
-	hobby := c.Param("hobby_id")
+	hobby := c.Param("hobby")
 	if len(userID) == 0 || len(hobby) == 0 {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id and hobby are mandatory"))
 		return
