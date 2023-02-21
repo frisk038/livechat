@@ -26,10 +26,6 @@ func NewHandlerProfile(b business) HandlerProfile {
 }
 
 func (hp *HandlerProfile) PostUsers(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "POST")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
-
 	ctx := c.Request.Context()
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
@@ -47,10 +43,6 @@ func (hp *HandlerProfile) PostUsers(c *gin.Context) {
 }
 
 func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "POST")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
-
 	ctx := c.Request.Context()
 	userID := c.Param("user_id")
 	hobby := c.Param("hobby")
@@ -69,10 +61,6 @@ func (hp *HandlerProfile) PostUsersHobbies(c *gin.Context) {
 }
 
 func (hp *HandlerProfile) GetUsersHobbies(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
-
 	ctx := c.Request.Context()
 	userID := c.Param("user_id")
 	if len(userID) == 0 {
@@ -84,16 +72,13 @@ func (hp *HandlerProfile) GetUsersHobbies(c *gin.Context) {
 	hobbies, err := hp.business.GetHobbies(ctx, userID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"hobbies": hobbies})
 }
 
 func (hp *HandlerProfile) DelUsersHobbies(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "DELETE")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
-
 	ctx := c.Request.Context()
 	userID := c.Param("user_id")
 	hobby := c.Param("hobby_id")
@@ -104,6 +89,7 @@ func (hp *HandlerProfile) DelUsersHobbies(c *gin.Context) {
 	hobbyID, err := uuid.Parse(hobby)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("id is not an uuid"))
+		return
 	}
 
 	//TODO better fine tuning err

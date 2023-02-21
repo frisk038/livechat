@@ -7,6 +7,7 @@ import (
 	"github.com/frisk038/livechat/app/handlers/connexions"
 	"github.com/frisk038/livechat/business"
 	"github.com/frisk038/livechat/infra/repo"
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -19,7 +20,7 @@ func initRoutes(hp handlers.HandlerProfile, hc handlers.HandlerChat) {
 	}
 
 	r := gin.Default()
-
+	r.Use(cors.Default())
 	r.POST("/user", hp.PostUsers)
 	r.POST("/user/:user_id/hobby/:hobby", hp.PostUsersHobbies)
 	r.GET("/user/:user_id/hobbies", hp.GetUsersHobbies)
