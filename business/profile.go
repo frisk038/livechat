@@ -11,7 +11,7 @@ type repo interface {
 	InsertUser(ctx context.Context, userID, firstName, lastName string) error
 	InsertHobbies(ctx context.Context, hobbies []string) error
 	InsertUserHobbies(ctx context.Context, userID string, hobbies []string) error
-	GetUserHobbies(ctx context.Context, userID string) ([]string, error)
+	GetUserHobbies(ctx context.Context, userID string) ([]models.Hobby, error)
 	DelUserHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error
 }
 
@@ -40,7 +40,7 @@ func (bp *BusinessProfile) SetHobbies(ctx context.Context, userID, hobby string)
 	return bp.repo.InsertUserHobbies(ctx, userID, []string{hobby})
 }
 
-func (bp *BusinessProfile) GetHobbies(ctx context.Context, userID string) ([]string, error) {
+func (bp *BusinessProfile) GetHobbies(ctx context.Context, userID string) ([]models.Hobby, error) {
 	return bp.repo.GetUserHobbies(ctx, userID)
 }
 

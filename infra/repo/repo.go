@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/frisk038/livechat/business/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
@@ -17,7 +18,7 @@ const (
 	insertUser        = `INSERT INTO users(id, first_name, last_name) VALUES ($1, $2, $3);`
 	upsertHobby       = `INSERT INTO hobbies(name) VALUES (LOWER($1)) ON CONFLICT DO NOTHING;`
 	insertUserHobbies = `INSERT INTO users_hobbies (user_id, hobby_id) VALUES($1 , (SELECT id FROM hobbies WHERE name=LOWER($2)))`
-	getUserHobbies    = `SELECT name FROM users_hobbies LEFT JOIN hobbies ON hobbies.id=users_hobbies.hobby_id WHERE user_id=$1;`
+	getUserHobbies    = `SELECT hobbies.name,users_hobbies.hobby_id  FROM users_hobbies LEFT JOIN hobbies ON hobbies.id=users_hobbies.hobby_id WHERE user_id=$1;`
 	delUserHobbies    = `DELETE FROM users_hobbies where user_id=$1 and hobby_id=$2;`
 )
 
@@ -62,17 +63,17 @@ func (r *Repo) InsertUserHobbies(ctx context.Context, userID string, hobbies []s
 	return gp.Wait()
 }
 
-func (r *Repo) GetUserHobbies(ctx context.Context, userID string) ([]string, error) {
+func (r *Repo) GetUserHobbies(ctx context.Context, userID string) ([]models.Hobby, error) {
 	rows, err := r.conn.Query(ctx, getUserHobbies, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var hobbies []string
-	var hobby string
+	var hobbies []models.Hobby
+	var hobby models.Hobby
 	for rows.Next() {
-		err = rows.Scan(&hobby)
+		err = rows.Scan(&hobby.Name, &hobby.ID)
 		if err != nil {
 			return nil, err
 		}

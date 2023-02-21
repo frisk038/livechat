@@ -13,7 +13,7 @@ import (
 type business interface {
 	CreateUser(ctx context.Context, user models.User) error
 	SetHobbies(ctx context.Context, user string, hobby string) error
-	GetHobbies(ctx context.Context, userID string) ([]string, error)
+	GetHobbies(ctx context.Context, userID string) ([]models.Hobby, error)
 	DelHobbies(ctx context.Context, userID string, hobbyID uuid.UUID) error
 }
 
